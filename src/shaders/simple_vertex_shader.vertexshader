@@ -1,0 +1,13 @@
+#version 330 core
+
+layout(location=0) in vec3 position_in_modelspace;
+layout(location=1) in vec3 colour_vertex;
+
+out vec3 fragmentcolour;
+
+//uniform mat4 MPV;
+
+void main(){
+    gl_Position = vec4(position_in_modelspace,1);
+    fragmentcolour = colour_vertex;
+}
