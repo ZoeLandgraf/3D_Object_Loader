@@ -1,10 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <cuda_stdint.h>
 #include <vector>
 #include <string>
-
+#include <glm/glm.hpp>
 #include <assimp/cimport.h>
 #include <assimp/types.h>
 #include <assimp/vector3.h>
@@ -17,5 +16,42 @@
 
 
 namespace loader{
-void load_3d_object(std::string test_object_file, std::vector<glm::vec3>& opengl_vertices);
+
+
+
+struct Material
+{
+    std::string Name;
+    glm::vec3 Ambient;
+    glm::vec3 Diffuse;
+    glm::vec3 Specular;
+    float Shininess;
+};
+
+struct Mesh
+{
+    std::string Name;
+    std::vector<glm::vec3> Vertices;
+    std::vector<glm::vec3> Normals;
+    int MaterialIndex;
+};
+
+class _3DModelLoader{
+ public:
+    _3DModelLoader(){};
+    void load_3d_object(std::string test_object_file);
+
+ private:
+    const aiScene *m_scene_;
+    void LoadMaterials();
+    void LoadMeshes();
+    Material* ProcessMaterial(aiMaterial* material);
+    Mesh* ProcessMesh(aiMesh* material);
+
+    std::vector<Mesh*> meshes_;
+    std::vector<Material*> materials_;
+
+};
+
+
 }
