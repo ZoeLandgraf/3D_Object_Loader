@@ -61,6 +61,7 @@ add_executable(shapenetloader
     loader.cpp
     viewer.cpp
     main.cpp
+    control.cpp
     shaders/simple_vertex_shader.vertexshader
     shaders/simple_fragment_shader.fragmentshader
     shaders/material_vertex_shader.vertexshader

@@ -18,12 +18,17 @@
 #include <glm/ext.hpp>
 #include <glm/glm.hpp>
 
-
+#include "control.h"
 #include "loader.h"
 
 
 namespace viewer{
-  void view(std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, std::vector<loader::OpenGL_Material> materials);
+  void view(std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals,
+            std::vector<loader::OpenGL_Material> materials,
+            std::vector<glm::vec3> colours);
+
+  void view(std::vector<glm::vec3> vertices,
+            std::vector<glm::vec3> colours);
 }
 
 #endif //VIEWER_H
