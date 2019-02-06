@@ -1,0 +1,35 @@
+#version 330 core
+
+layout(location=0) in vec3 position_in_modelspace;
+layout(location=1) in vec3 vertexNormal;
+
+layout(location=2) in vec3 Ka;
+layout(location=3) in vec3 Kd;
+layout(location=4) in vec3 Ks;
+layout(location=5) in float S;
+
+out vec3 normal;
+out vec3 position;
+
+out vec3 Ka_frag;
+out vec3 Kd_frag;
+out vec3 Ks_frag;
+out float S_frag;
+
+uniform mat4 MVP;
+uniform mat4 MV;
+uniform mat3 N;
+
+void main(){
+
+    normal = normalize(N*vertexNormal);
+    // position of the points in Camera frame of reference
+    position = vec3(MV * vec4(position_in_modelspace, 1);
+    gl_Position = MVP * vec4(position_in_modelspace,1);
+
+    Ka_frag = Ka;
+    Kd_frag = Kd;
+    Ks_frag = Ks;
+    S_frag = S;
+
+}

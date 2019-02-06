@@ -1,6 +1,10 @@
+
+#ifndef LOADER_H
+#define LOADER_H
+
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <iostream>
 #include <vector>
 #include <string>
 #include <glm/glm.hpp>
@@ -12,12 +16,17 @@
 #include <assimp/material.h>
 #include <assimp/postprocess.h>
 
-#include "viewer.h"
 
 
 namespace loader{
 
-
+struct OpenGL_Material
+{
+    glm::vec3 Ambient;
+    glm::vec3 Diffuse;
+    glm::vec3 Specular;
+    float Shininess;
+};
 
 struct Material
 {
@@ -41,12 +50,15 @@ class _3DModelLoader{
     _3DModelLoader(){};
     void load_3d_object(std::string test_object_file);
     void copyVertices(std::vector<glm::vec3>& vertices);
+    void copyNormals(std::vector<glm::vec3>& normals);
+    void copyMaterials(std::vector<OpenGL_Material>& materials);
+    void copyMaterials(std::vector<Material>& materials);
 
  private:
     const aiScene *m_scene_;
     void LoadMaterials();
     void LoadMeshes();
-
+    OpenGL_Material* ConvertToOpenGLMaterial(Material* material);
     Material* ProcessMaterial(aiMaterial* material);
     Mesh* ProcessMesh(aiMesh* material);
 
@@ -57,3 +69,5 @@ class _3DModelLoader{
 
 
 }
+
+#endif

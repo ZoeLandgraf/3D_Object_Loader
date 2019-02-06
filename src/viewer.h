@@ -1,3 +1,7 @@
+#ifndef VIEWER_H
+#define VIEWER_H
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -11,8 +15,15 @@
 
 //GLM gtc matrix transform
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/ext.hpp>
+#include <glm/glm.hpp>
+
+
+#include "loader.h"
 
 
 namespace viewer{
-  void view(std::vector<glm::vec3> vertices);
+  void view(std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, std::vector<loader::OpenGL_Material> materials);
 }
+
+#endif //VIEWER_H

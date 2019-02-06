@@ -1,7 +1,7 @@
 # CMake entry point
 cmake_minimum_required (VERSION 3.0)
 project (LoadShapeNetObjects)
-
+set (CMAKE_CXX_STANDARD 11)
 find_package(OpenGL REQUIRED)
 FIND_PACKAGE(ASSIMP REQUIRED)
 
@@ -63,6 +63,8 @@ add_executable(shapenetloader
     main.cpp
     shaders/simple_vertex_shader.vertexshader
     shaders/simple_fragment_shader.fragmentshader
+    shaders/material_vertex_shader.vertexshader
+    shaders/material_fragment_shader.fragmentshader
     )
 
 

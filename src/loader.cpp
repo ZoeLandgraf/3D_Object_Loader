@@ -101,13 +101,42 @@ void _3DModelLoader::load_3d_object(std::string test_object_file)
 
 
 void _3DModelLoader::copyVertices(std::vector<glm::vec3>& vertices){
-    for(int m = 0; m < meshes_.size(); m++){
+    for(uint m = 0; m < meshes_.size(); m++){
 
         for(int i = 0; i < (meshes_[m])->Vertices.size(); i ++){
             vertices.push_back(meshes_[m]->Vertices[i]);
     }
 
     }
+}
+
+void _3DModelLoader::copyNormals(std::vector<glm::vec3>& normals){
+    for(uint m = 0; m < meshes_.size(); m++){
+
+        for(int i = 0; i < (meshes_[m])->Normals.size(); i ++){
+            normals.push_back(meshes_[m]->Normals[i]);
+    }
+
+    }
+}
+
+void _3DModelLoader::copyMaterials(std::vector<OpenGL_Material>& materials){
+    for(uint m = 0; m < meshes_.size(); m++){
+        uint Material_index = meshes_[m]->MaterialIndex;
+        for(uint i = 0; i < (meshes_[m])->Vertices.size(); i ++){
+            materials.push_back(*ConvertToOpenGLMaterial((materials_[Material_index])));
+    }
+    }
+}
+
+OpenGL_Material* _3DModelLoader::ConvertToOpenGLMaterial(Material* material){
+    OpenGL_Material* open_gl_material = new OpenGL_Material;
+    open_gl_material->Ambient = material->Ambient;
+    open_gl_material->Diffuse = material->Diffuse;
+    open_gl_material->Specular = material->Specular;
+    open_gl_material->Shininess = material->Shininess;
+
+    return open_gl_material;
 }
 
 }

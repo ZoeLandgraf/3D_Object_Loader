@@ -2,7 +2,7 @@
 
 
 namespace viewer{
-void view(std::vector<glm::vec3> vertices){
+void view(std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, std::vector<loader::OpenGL_Material> materials){
 
     //initialize glfw
     glewExperimental = true;
@@ -69,21 +69,87 @@ void view(std::vector<glm::vec3> vertices){
     glBindBuffer(GL_ARRAY_BUFFER, colourbuffer_model);
     glBufferData(GL_ARRAY_BUFFER, colours.size() * sizeof(glm::vec3), &colours[0], GL_STATIC_DRAW);
 
+    // normalbuffer
+    GLuint normalbuffer_model;
+    glGenBuffers(1,&normalbuffer_model);
+    glBindBuffer(GL_ARRAY_BUFFER, normalbuffer_model);
+    glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
+
+
+    std::vector<glm::vec3> Ka;
+    std::vector<glm::vec3> Kd;
+    std::vector<glm::vec3> Ks;
+    std::vector<glm::float1> S;
+    for( loader::OpenGL_Material material : materials){
+        Ka.push_back(material.Ambient);
+        Kd.push_back(material.Diffuse);
+        Ks.push_back(material.Specular);
+        S.push_back(material.Shininess);
+    }
+
+
+    // KAbuffer
+    GLuint KAbuffer_model;
+    glGenBuffers(1,&KAbuffer_model);
+    glBindBuffer(GL_ARRAY_BUFFER, KAbuffer_model);
+    glBufferData(GL_ARRAY_BUFFER, Ka.size() * sizeof(glm::vec3), &Ka[0], GL_STATIC_DRAW);
+
+    // KDbuffer
+    GLuint KDbuffer_model;
+    glGenBuffers(1,&KDbuffer_model);
+    glBindBuffer(GL_ARRAY_BUFFER, KDbuffer_model);
+    glBufferData(GL_ARRAY_BUFFER, Kd.size() * sizeof(glm::vec3), &Kd[0], GL_STATIC_DRAW);
+
+    // KSbuffer
+    GLuint KSbuffer_model;
+    glGenBuffers(1,&KSbuffer_model);
+    glBindBuffer(GL_ARRAY_BUFFER, KSbuffer_model);
+    glBufferData(GL_ARRAY_BUFFER, Ks.size() * sizeof(glm::vec3), &Ks[0], GL_STATIC_DRAW);
+
+    // Sbuffer
+    GLuint Sbuffer_model;
+    glGenBuffers(1,&Sbuffer_model);
+    glBindBuffer(GL_ARRAY_BUFFER, Sbuffer_model);
+    glBufferData(GL_ARRAY_BUFFER, S.size() * sizeof(glm::float1), &S[0], GL_STATIC_DRAW);
+
+    //Get uniform handels
+    GLint MVP_ID = glGetUniformLocation(programID, "MVP");
+    GLint MV_ID = glGetUniformLocation(programID, "MV");
+    GLint N_ID = glGetUniformLocation(programID, "N");
+
+
+    GLint KA_ID = glGetUniformLocation(programID, "Material[0].Type");
+    GLint KD_ID = glGetUniformLocation(programID, "Material[1].Type");
+    GLint KS_ID = glGetUniformLocation(programID, "Material[2].Type");
+    GLint S_ID = glGetUniformLocation(programID, "Material[3].Type");
+
+
+    GLint LIGHT_POSITION_ID = glGetUniformLocation(programID, "Light[0].Type");
+    GLint LIGHT_INTENSITY_ID = glGetUniformLocation(programID, "Light[1].Type");
 
     //Compute the transformation matrix
-    // This gets a handle for our MVP uniforms
-    GLint MatrixID = glGetUniformLocation(programID, "MVP");
+
+
     float near_clipping_plane = 0.1f;
     float far_clipping_plane = 100.0f;
     float aspect_ratio = 4.0f/3.0f;
     float FoV = 45.0f;
     glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(FoV), aspect_ratio, near_clipping_plane, far_clipping_plane);
     glm::mat4 View = glm::lookAt(
-                  glm::vec3(2,2,2),  // camera is at 4,3,3 in world space
+                  glm::vec3(-1,-1,-2),  // camera is at 4,3,3 in world space
                   glm::vec3(0,0,0),  // looks at the origin
-                  glm::vec3(0,1,0)   // Head is up (set  to (0, -1, 0) to look upside down
+                  glm::vec3(0,-1,0)   // Head is up (set  to (0, -1, 0) to look upside down
                   );
     glm::mat4 mvp = ProjectionMatrix * View;
+    glm::mat4 mv = View;
+
+    glm::mat3x3 modelMatrix3(mv);
+    glm::mat3x3 n = glm::inverseTranspose(modelMatrix3);
+
+
+    glm::float3 light_intensity(1.0,1.0,1.0);
+    glm::float4 light_position(-1.0,1.0,1.0,1.0);
+
 
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
@@ -94,7 +160,12 @@ void view(std::vector<glm::vec3> vertices){
 
         /* **********draw the cube***** */
         //This send the transformation to the currently bound shader
-        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
+        glUniformMatrix4fv(MVP_ID, 1, GL_FALSE, &mvp[0][0]);
+        glUniformMatrix4fv(MV_ID, 1, GL_FALSE, &mv[0][0]);
+        glUniformMatrix3fv(N_ID, 1, GL_FALSE, &n[0][0]);
+
+        glUniform4f(LIGHT_POSITION_ID, light_position[0],light_position[1],light_position[2],light_position[3]);
+        glUniform3f(LIGHT_INTENSITY_ID, light_intensity[0],light_intensity[1],light_intensity[2]);
 
         /********* configuring the buffers*******/
         glEnableVertexAttribArray(0);
@@ -108,7 +179,7 @@ void view(std::vector<glm::vec3> vertices){
                     (void*)0   // arraybuffer offset
                     );
         glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, colourbuffer_model);
+        glBindBuffer(GL_ARRAY_BUFFER, normalbuffer_model);
         glVertexAttribPointer(
                     1,
                     3,
@@ -117,10 +188,57 @@ void view(std::vector<glm::vec3> vertices){
                     0,
                     (void*)0
                     );
+        glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ARRAY_BUFFER, KAbuffer_model);
+        glVertexAttribPointer(
+                    2,
+                    3,
+                    GL_FLOAT,
+                    GL_FALSE,
+                    0,
+                    (void*)0
+                    );
+        glEnableVertexAttribArray(3);
+        glBindBuffer(GL_ARRAY_BUFFER, KDbuffer_model);
+        glVertexAttribPointer(
+                    3,
+                    3,
+                    GL_FLOAT,
+                    GL_FALSE,
+                    0,
+                    (void*)0
+                    );
+        glEnableVertexAttribArray(4);
+        glBindBuffer(GL_ARRAY_BUFFER, KSbuffer_model);
+        glVertexAttribPointer(
+                    4,
+                    3,
+                    GL_FLOAT,
+                    GL_FALSE,
+                    0,
+                    (void*)0
+                    );
+        glEnableVertexAttribArray(5);
+        glBindBuffer(GL_ARRAY_BUFFER, Sbuffer_model);
+        glVertexAttribPointer(
+                    5,
+                    1,
+                    GL_FLOAT,
+                    GL_FALSE,
+                    0,
+                    (void*)0
+                    );
+
 
         //This won't draw without a shader!!!
         glDrawArrays(GL_TRIANGLES, 0, vertices.size()); // Starting from vertex 0, 3 vertices in total
         glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(2);
+        glDisableVertexAttribArray(3);
+        glDisableVertexAttribArray(4);
+        glDisableVertexAttribArray(5);
+
 
         glfwSwapBuffers(window);
         glfwPollEvents();
