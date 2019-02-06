@@ -37,6 +37,7 @@ void view(std::vector<glm::vec3> vertices){
     // Dark blue background
     glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
+
     std::vector<glm::vec3> colours;
     for (uint i = 0; i < vertices.size(); i++){
         colours.push_back(glm::vec3(1.0,0,0));
@@ -68,6 +69,22 @@ void view(std::vector<glm::vec3> vertices){
     glBindBuffer(GL_ARRAY_BUFFER, colourbuffer_model);
     glBufferData(GL_ARRAY_BUFFER, colours.size() * sizeof(glm::vec3), &colours[0], GL_STATIC_DRAW);
 
+
+    //Compute the transformation matrix
+    // This gets a handle for our MVP uniforms
+    GLint MatrixID = glGetUniformLocation(programID, "MVP");
+    float near_clipping_plane = 0.1f;
+    float far_clipping_plane = 100.0f;
+    float aspect_ratio = 4.0f/3.0f;
+    float FoV = 45.0f;
+    glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(FoV), aspect_ratio, near_clipping_plane, far_clipping_plane);
+    glm::mat4 View = glm::lookAt(
+                  glm::vec3(2,2,2),  // camera is at 4,3,3 in world space
+                  glm::vec3(0,0,0),  // looks at the origin
+                  glm::vec3(0,1,0)   // Head is up (set  to (0, -1, 0) to look upside down
+                  );
+    glm::mat4 mvp = ProjectionMatrix * View;
+
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
     do {
@@ -77,6 +94,7 @@ void view(std::vector<glm::vec3> vertices){
 
         /* **********draw the cube***** */
         //This send the transformation to the currently bound shader
+        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 
         /********* configuring the buffers*******/
         glEnableVertexAttribArray(0);

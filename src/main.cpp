@@ -28,14 +28,15 @@ int main(){
     //TODO: debug scenenet with a shapenet object which is rednered properly
             //debug it with one which is not rendered nicely -> compare what data looks like after the material has been loaded
     // Load object in assimp
-    std::string test_object_file = "/home/zoe/2c6493d31849c15a75f1efca97bee05a/models/model_normalized.obj";
+    std::string test_object_file = "/home/zoe/suzanne.obj";
 
-    std::vector<glm::vec3> opengl_vertices;
+    std::vector<glm::vec3> vertices;
 
     loader::_3DModelLoader loader = loader::_3DModelLoader();
     loader.load_3d_object(test_object_file);
 
-    viewer::view(opengl_vertices);
+    loader.copyVertices(vertices);
+    viewer::view(vertices);
 
     return(0);
 }

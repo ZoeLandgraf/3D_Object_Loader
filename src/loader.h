@@ -40,11 +40,13 @@ class _3DModelLoader{
  public:
     _3DModelLoader(){};
     void load_3d_object(std::string test_object_file);
+    void copyVertices(std::vector<glm::vec3>& vertices);
 
  private:
     const aiScene *m_scene_;
     void LoadMaterials();
     void LoadMeshes();
+
     Material* ProcessMaterial(aiMaterial* material);
     Mesh* ProcessMesh(aiMesh* material);
 

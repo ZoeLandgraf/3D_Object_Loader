@@ -59,11 +59,14 @@ Mesh* _3DModelLoader::ProcessMesh(aiMesh* mesh){
         glm::vec3 next_vertex = glm::vec3(vector.x, vector.y, vector.z);
         mesh_info->Vertices.push_back(next_vertex);
     }
-    for (uint i = 0; i < mesh->mNumNormals; i++){
-        aiVector3t<float> vector = mesh->mNormals[i];
-        glm::vec3 next_vertex = glm::vec3(vector.x, vector.y, vector.z);
-        mesh_info->Normals.push_back(next_vertex);
+    if (mesh->HasNormals()){
+        for (uint i = 0; i < mesh->mNumVertices; i++){
+            aiVector3t<float> normal = mesh->mNormals[i];
+            glm::vec3 next_normal = glm::vec3(normal.x, normal.y, normal.z);
+            mesh_info->Normals.push_back(next_normal);
+        }
     }
+
     mesh_info->MaterialIndex = mesh->mMaterialIndex;
     //TODO: Normals
 }
@@ -96,5 +99,15 @@ void _3DModelLoader::load_3d_object(std::string test_object_file)
   LoadMeshes();
 }
 
+
+void _3DModelLoader::copyVertices(std::vector<glm::vec3>& vertices){
+    for(int m = 0; m < meshes_.size(); m++){
+
+        for(int i = 0; i < (meshes_[m])->Vertices.size(); i ++){
+            vertices.push_back(meshes_[m]->Vertices[i]);
+    }
+
+    }
+}
 
 }
