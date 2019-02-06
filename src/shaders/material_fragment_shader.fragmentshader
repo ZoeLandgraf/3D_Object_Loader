@@ -4,10 +4,6 @@ in vec3 normal;
 in vec3 position;
 
 
-in vec3 Ka_frag;
-in vec3 Kd_frag;
-in vec3 Ks_frag;
-in float S_frag;
 
 layout(location = 0) out vec4 fragColor;
 
@@ -22,18 +18,26 @@ uniform Light light;
 
 void main()
 {
+
+    vec3 light_intensity = vec3(1.0,1.0,1.0);
+    vec4 light_position = vec4(-1.0,-1.0,1.0,1.0);
+
     // n and s are used to compute cos(theta), which is the angle between the surface normal and the incoming light which affets the diffusion, hence the color
     vec3 n = normalize(normal);
-    vec3 s = normalize(light.position.xyz - position);
+    vec3 s = normalize(light_position.xyz - position);
     //position of the point in camera frame of ref
     vec3 v = normalize(-position.xyz);
-    vec4 h = normalize(v + s);
+    vec3 h = normalize((v + s));
+
+    vec4 distance_hom = vec4(position,1) - (light_position);
+    vec3 distance = distance_hom.xyz;
 
     float sdn = dot(s,n);
-    vec3 ambient = Ka_frag;
-    vec3 diffuse = Kd_frag * max(sdn,0.0);
-    vec3 specular = Ks_frag * mix(0.0, pow(dot(h,n), S_frag), step(0.0,sdn));
 
-    fragColor = vec4(light.intensity * (ambient+diffuse+specular),1);
+    vec3 diffuse_colour = vec3(0.5,0.0,0.0);
+    vec3 diffuse = diffuse_colour * max(sdn,0.0);
+
+    vec3 lightcolor = vec3(1.0,1.0,1.0);
+    fragColor = vec4(lightcolor * light_intensity * (diffuse),1) / (distance_hom*distance_hom);
 
 }

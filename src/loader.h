@@ -62,6 +62,8 @@ class _3DModelLoader{
     Material* ProcessMaterial(aiMaterial* material);
     Mesh* ProcessMesh(aiMesh* material);
 
+    Material* CreateRandomMaterial();
+
     std::vector<Mesh*> meshes_;
     std::vector<Material*> materials_;
 

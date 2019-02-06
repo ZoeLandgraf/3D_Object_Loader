@@ -44,7 +44,7 @@ void view(std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, std::
     }
 
     //Create and Compile the shaders
-    GLuint programID = LoadShaders("../shaders/simple_vertex_shader.vertexshader", "../shaders/simple_fragment_shader.fragmentshader");
+    GLuint programID = LoadShaders("../shaders/material_vertex_shader.vertexshader", "../shaders/material_fragment_shader.fragmentshader");
 
     // Pass model to OpenGL
     // This is where th Vertex Array Object VAO has to be created. After creating the contextr and before any other GL call
@@ -118,17 +118,7 @@ void view(std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, std::
     GLint N_ID = glGetUniformLocation(programID, "N");
 
 
-    GLint KA_ID = glGetUniformLocation(programID, "Material[0].Type");
-    GLint KD_ID = glGetUniformLocation(programID, "Material[1].Type");
-    GLint KS_ID = glGetUniformLocation(programID, "Material[2].Type");
-    GLint S_ID = glGetUniformLocation(programID, "Material[3].Type");
-
-
-    GLint LIGHT_POSITION_ID = glGetUniformLocation(programID, "Light[0].Type");
-    GLint LIGHT_INTENSITY_ID = glGetUniformLocation(programID, "Light[1].Type");
-
     //Compute the transformation matrix
-
 
     float near_clipping_plane = 0.1f;
     float far_clipping_plane = 100.0f;
@@ -147,10 +137,6 @@ void view(std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, std::
     glm::mat3x3 n = glm::inverseTranspose(modelMatrix3);
 
 
-    glm::float3 light_intensity(1.0,1.0,1.0);
-    glm::float4 light_position(-1.0,1.0,1.0,1.0);
-
-
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
     do {
@@ -164,8 +150,6 @@ void view(std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, std::
         glUniformMatrix4fv(MV_ID, 1, GL_FALSE, &mv[0][0]);
         glUniformMatrix3fv(N_ID, 1, GL_FALSE, &n[0][0]);
 
-        glUniform4f(LIGHT_POSITION_ID, light_position[0],light_position[1],light_position[2],light_position[3]);
-        glUniform3f(LIGHT_INTENSITY_ID, light_intensity[0],light_intensity[1],light_intensity[2]);
 
         /********* configuring the buffers*******/
         glEnableVertexAttribArray(0);
@@ -188,56 +172,11 @@ void view(std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals, std::
                     0,
                     (void*)0
                     );
-        glEnableVertexAttribArray(2);
-        glBindBuffer(GL_ARRAY_BUFFER, KAbuffer_model);
-        glVertexAttribPointer(
-                    2,
-                    3,
-                    GL_FLOAT,
-                    GL_FALSE,
-                    0,
-                    (void*)0
-                    );
-        glEnableVertexAttribArray(3);
-        glBindBuffer(GL_ARRAY_BUFFER, KDbuffer_model);
-        glVertexAttribPointer(
-                    3,
-                    3,
-                    GL_FLOAT,
-                    GL_FALSE,
-                    0,
-                    (void*)0
-                    );
-        glEnableVertexAttribArray(4);
-        glBindBuffer(GL_ARRAY_BUFFER, KSbuffer_model);
-        glVertexAttribPointer(
-                    4,
-                    3,
-                    GL_FLOAT,
-                    GL_FALSE,
-                    0,
-                    (void*)0
-                    );
-        glEnableVertexAttribArray(5);
-        glBindBuffer(GL_ARRAY_BUFFER, Sbuffer_model);
-        glVertexAttribPointer(
-                    5,
-                    1,
-                    GL_FLOAT,
-                    GL_FALSE,
-                    0,
-                    (void*)0
-                    );
-
 
         //This won't draw without a shader!!!
         glDrawArrays(GL_TRIANGLES, 0, vertices.size()); // Starting from vertex 0, 3 vertices in total
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
-        glDisableVertexAttribArray(2);
-        glDisableVertexAttribArray(3);
-        glDisableVertexAttribArray(4);
-        glDisableVertexAttribArray(5);
 
 
         glfwSwapBuffers(window);

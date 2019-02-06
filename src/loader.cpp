@@ -4,12 +4,24 @@
 namespace loader{
 
 
+Material* _3DModelLoader::CreateRandomMaterial(){
+
+    Material* material_info = new Material;
+    material_info->Ambient = glm::vec3(0.0, 0.0, 0.0);
+    material_info->Diffuse = glm::vec3(0.64, 0.48, 0.32);
+    material_info->Specular = glm::vec3(0.5, 0.5, 0.5);
+    material_info->Shininess = 96;
+
+    return material_info;
+}
+
 
 void _3DModelLoader::LoadMaterials(){
 
     if (m_scene_->HasMaterials()){
         for (int i = 0; i < m_scene_->mNumMaterials; i++){
-            materials_.push_back(ProcessMaterial(m_scene_->mMaterials[i]));
+            //materials_.push_back(ProcessMaterial(m_scene_->mMaterials[i]));
+            materials_.push_back(CreateRandomMaterial());
         }
     }
     else{
@@ -65,7 +77,10 @@ Mesh* _3DModelLoader::ProcessMesh(aiMesh* mesh){
             glm::vec3 next_normal = glm::vec3(normal.x, normal.y, normal.z);
             mesh_info->Normals.push_back(next_normal);
         }
+    }else{
+        std::cout<<"Mehs has no normals!"<<std::endl;
     }
+
 
     mesh_info->MaterialIndex = mesh->mMaterialIndex;
     //TODO: Normals
@@ -87,8 +102,7 @@ void _3DModelLoader::LoadMeshes(){
 void _3DModelLoader::load_3d_object(std::string test_object_file)
 {
   Assimp::Importer importer;
-  m_scene_ = importer.ReadFile(test_object_file,aiProcess_Triangulate | aiProcess_SortByPType |
-                                                      aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph);
+  m_scene_ = importer.ReadFile(test_object_file,aiProcess_Triangulate | aiProcess_SortByPType);
   if( !m_scene_)
   {
     std::cout << importer.GetErrorString() << std::endl;
