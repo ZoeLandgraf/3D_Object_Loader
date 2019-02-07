@@ -15,10 +15,14 @@
 #include <assimp/scene.h>
 #include <assimp/material.h>
 #include <assimp/postprocess.h>
+#include <boost/filesystem.hpp>
+
+
 
 
 
 namespace loader{
+
 
 
 struct Dummy_Colours
@@ -63,6 +67,7 @@ struct Material
     glm::vec3 Specular;
     float Shininess;
     std::string path_to_texture;
+    std::vector<glm::vec3> Dummy_Colors;
 
 };
 
@@ -77,16 +82,25 @@ struct Mesh
     std::vector<glm::vec3> Dummy_Colors;
 };
 
+
+
 class _3DModelLoader{
  public:
-    _3DModelLoader(){};
+    _3DModelLoader(std::string path_to_model):path_to_model_(path_to_model){};
     void load_3d_object(std::string test_object_file);
-    void copyUVCoords(std::vector<glm::vec3>& vertices);
+    bool copyUVCoords(std::vector<glm::vec3>& vertices);
     bool copyVertices(std::vector<glm::vec3>& vertices);
     bool copyNormals(std::vector<glm::vec3>& normals);
     bool copyMaterials(std::vector<OpenGL_Material>& materials);
     bool copyMaterials(std::vector<Material>& materials);
     bool copyColours(std::vector<glm::vec3>& colours);
+
+    bool Has_Textures();
+    bool Has_Materials();
+    bool Has_Normals();
+
+    std::vector<Mesh*> GetMeshes();
+    std::vector<Material*> GetMaterials();
 
  private:
     const aiScene *m_scene_;
@@ -100,10 +114,12 @@ class _3DModelLoader{
 
     std::vector<Mesh*> meshes_;
     std::vector<Material*> materials_;
-
     bool has_normals;
     bool has_materials;
     bool has_textures;
+
+    std::string path_to_model_;
+
 
 };
 

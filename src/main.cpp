@@ -21,37 +21,58 @@
 
 #include "loader.h"
 #include "viewer.h"
+#include "object.h"
+
+
 
 int main(){
 
 
-    //TODO: debug scenenet with a shapenet object which is rednered properly
-            //debug it with one which is not rendered nicely -> compare what data looks like after the material has been loaded
     // Load object in assimp    
-    std::string test_object_file = "/home/zoe/2c6493d31849c15a75f1efca97bee05a/models/model_normalized.obj";
+    std::string test_object_file = "/home/zoe/7852a457e59fd546d26c2593d1870bdb/models/model_normalized.obj";
 
-    std::vector<glm::vec3> vertices;
-    std::vector<glm::vec3> normals;
-    std::vector<glm::vec3> colours;
-    std::vector<loader::OpenGL_Material> materials;
+    object::_3D_OG_Object object = object::_3D_OG_Object();
 
-    loader::_3DModelLoader loader = loader::_3DModelLoader();
+    loader::_3DModelLoader loader = loader::_3DModelLoader("/home/zoe/2c6493d31849c15a75f1efca97bee05a/");
     loader.load_3d_object(test_object_file);
 
-
-    if (loader.copyNormals(normals)){
-
-        loader.copyMaterials(materials);
-        loader.copyVertices(vertices);
-        loader.copyColours(colours);
-        viewer::view(vertices, normals, materials, colours);
-    }
-    else {
-        loader.copyVertices(vertices);
-        loader.copyColours(colours);
-        viewer::view(vertices, colours);
+    //initialize glfw
+    glewExperimental = true;
+    if (!glfwInit())
+    {
+        fprintf(stderr, "Failed to initialize GLFW\n");
+        exit(-1);
     }
 
+
+    //Some settings
+    glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing which means that we have 4 samples (fragment shader is executed for every sample) per pixel
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3); // to define that we want to use Opnegl 3.3
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // this stops us from using the old Opengl
+
+    //Cretae and open a window // Context creation
+    GLFWwindow* window;
+    window = glfwCreateWindow(1024,768, "Tutorial 01", NULL, NULL);
+    if (window == NULL){
+        fprintf(stderr, "Failed to open GLFW window");
+        glfwTerminate();
+        exit(-1);
+    }
+    glfwMakeContextCurrent(window); //initializes GLEW
+    glewExperimental = true;
+    if (glewInit() != GLEW_OK){
+        fprintf(stderr, "Faile to initialze GLEW\n");
+        exit(-1);
+    }
+
+    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+
+
+    object.AddObject(loader.GetMeshes(), loader.GetMaterials());
+
+    // In case of only textures and missing normals, extract uv_coordinates and vertices
+    viewer::view(window, object);
 
     return(0);
 }

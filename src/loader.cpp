@@ -21,7 +21,6 @@ void _3DModelLoader::LoadMaterials(){
     if (m_scene_->HasMaterials()){
         for (int i = 0; i < m_scene_->mNumMaterials; i++){
             materials_.push_back(ProcessMaterial(m_scene_->mMaterials[i]));
-            //materials_.push_back(CreateRandomMaterial());
             has_materials = true;
         }
     }
@@ -59,7 +58,16 @@ Material* _3DModelLoader::ProcessMaterial(aiMaterial* material){
     if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
        aiString Path;
        if (material->GetTexture(aiTextureType_DIFFUSE, 0, &Path, NULL, NULL, NULL, NULL, NULL) == AI_SUCCESS) {
-           material_info->path_to_texture = Path.data;
+
+           boost::filesystem::path tp = Path.data;
+           boost::filesystem::path base_dir = boost::filesystem::path(path_to_model_);
+           for(auto& part : tp){
+               if (!((part.string()) == "..")){
+                   base_dir /= part;
+               }
+           }
+
+           material_info->path_to_texture = base_dir.string();
            has_textures = true;
        } else{
 
@@ -67,9 +75,6 @@ Material* _3DModelLoader::ProcessMaterial(aiMaterial* material){
            has_textures = false;
        }
     }
-
-
-
     return material_info;
 
 }
@@ -103,7 +108,7 @@ Mesh* _3DModelLoader::ProcessMesh(aiMesh* mesh){
         }
     } else {
             std::cout<<"Mehs has no uv_coords!!!"<<std::endl;
-        }
+    }
 
     Dummy_Colours dummy_colours;
     int random_colour_id = rand() % (dummy_colours.colour_array.size());
@@ -191,6 +196,33 @@ bool _3DModelLoader::copyMaterials(std::vector<OpenGL_Material>& materials){
     return true;
 }
 
+
+bool _3DModelLoader::copyMaterials(std::vector<Material>& materials){
+
+    if (!has_materials){
+        return false;
+    }
+    for(uint m = 0; m < meshes_.size(); m++){
+        uint Material_index = meshes_[m]->MaterialIndex;
+        for(uint i = 0; i < (meshes_[m])->Vertices.size(); i++){
+            materials.push_back(*materials_[Material_index]);
+    }
+    }
+    return true;
+}
+
+
+
+bool _3DModelLoader::copyUVCoords(std::vector<glm::vec3>& uv_coords){
+    for(uint m = 0; m < meshes_.size(); m++){
+
+        for(int i = 0; i < (meshes_[m])->UV_Coords.size(); i ++){
+            uv_coords.push_back(meshes_[m]->UV_Coords[i]);
+        }
+    }
+    return true;
+}
+
 bool _3DModelLoader::copyColours(std::vector<glm::vec3>& colours){
     for(uint m = 0; m < meshes_.size(); m++){
 
@@ -200,6 +232,14 @@ bool _3DModelLoader::copyColours(std::vector<glm::vec3>& colours){
     }
     return true;
 }
+
+std::vector<Mesh*> _3DModelLoader::GetMeshes(){
+    return meshes_;
+}
+std::vector<Material*> _3DModelLoader::GetMaterials(){
+    return materials_;
+}
+
 
 OpenGL_Material* _3DModelLoader::ConvertToOpenGLMaterial(Material* material){
     OpenGL_Material* open_gl_material = new OpenGL_Material;

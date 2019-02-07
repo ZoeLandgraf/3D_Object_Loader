@@ -20,7 +20,7 @@
 
 #include "control.h"
 #include "loader.h"
-
+#include "object.h"
 
 namespace viewer{
   void view(std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals,
@@ -29,6 +29,8 @@ namespace viewer{
 
   void view(std::vector<glm::vec3> vertices,
             std::vector<glm::vec3> colours);
+
+  void view(GLFWwindow* window, object::_3D_OG_Object& object);
 }
 
 #endif //VIEWER_H

@@ -1,3 +1,5 @@
+// Code taken from http://www.opengl-tutorial.org/beginners-tutorials/tutorial-6-keyboard-and-mouse/
+
 #ifndef CONTROLS_H
 #define CONTROLS_H
 

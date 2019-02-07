@@ -1,7 +1,142 @@
 #include "viewer.h"
-
+#include "object.h"
 
 namespace viewer{
+
+
+
+
+void view(GLFWwindow* window, object::_3D_OG_Object& object){
+
+
+
+    // Dark blue background
+    glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+
+    //Create and Compile the shaders
+    //TODO: This should be set automatically to the right shader depending on the contents of the mesh
+    GLuint programID_texture = LoadShaders("../shaders/texture_vertex_shader.vertexshader", "../shaders/texture_fragment_shader.fragmentshader");
+    GLuint programID_simple = LoadShaders("../shaders/simple_vertex_shader.vertexshader", "../shaders/simple_fragment_shader.fragmentshader");
+
+
+    // Pass model to Open   GL
+    // This is where th Vertex Array Object VAO has to be created. After creating the contextr and before any other GL call
+    //Create VAO and set it as the current one
+    GLuint VertexArrayID;
+    glGenVertexArrays(1,&VertexArrayID);
+    glBindVertexArray(VertexArrayID);
+
+    //Get uniform handels
+    GLint MVP_ID_texture = glGetUniformLocation(programID_texture, "MVP");
+    // Get a handle for our "myTextureSampler" uniform
+    GLuint TextureID  = glGetUniformLocation(programID_texture, "myTextureSampler");
+    //GLint MVP_ID_simple = glGetUniformLocation(programID_simple, "MVP");
+
+
+
+    //transformation_matrix
+    float near_clipping_plane = 0.1f;
+    float far_clipping_plane = 100.0f;
+    float aspect_ratio = 4.0f/3.0f;
+    float FoV = 45.0f;
+    glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(FoV), aspect_ratio, near_clipping_plane, far_clipping_plane);
+    glm::mat4 View = glm::lookAt(
+                  glm::vec3(-1,-1,-1),  // camera is at 4,3,3 in world space
+                  glm::vec3(0,0,0),  // looks at the origin
+                  glm::vec3(0,-1,0)   // Head is up (set  to (0, -1, 0) to look upside down
+                  );
+    glm::mat4 mvp = ProjectionMatrix * View;
+
+    // Enable depth test
+    glEnable(GL_DEPTH_TEST);
+    // Accept fragment if it closer to the camera than the former one
+    glDepthFunc(GL_LESS);
+
+    std::cout<<"Got here"<<std::endl;
+
+    do {
+        //This clears the buffers for colour and depth
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        std::cout<<"In the loop " <<std::endl;
+
+        for (object::_3D_OG_Mesh mesh : object.GetMeshes()){
+
+
+
+            /********* configuring the buffers*******/
+
+            glEnableVertexAttribArray(0);
+            //Bind the buffer
+            glBindBuffer(GL_ARRAY_BUFFER, mesh.getVertexBuffer());
+            glVertexAttribPointer(
+                        0,
+                        3,
+                        GL_FLOAT,
+                        GL_FALSE,
+                        0,
+                        (void*)0
+                        );
+
+
+            if (mesh.has_uv_coords && mesh.has_texture){
+
+                glUseProgram(programID_texture);
+                glUniformMatrix4fv(MVP_ID_texture, 1, GL_FALSE, &mvp[0][0]);
+                // Bind our texture in Texture Unit 0
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, mesh.getTexture());
+                // Set our "myTextureSampler" sampler to use Texture Unit 0
+                glUniform1i(TextureID, 0);
+
+                glEnableVertexAttribArray(1);
+                glBindBuffer(GL_ARRAY_BUFFER, mesh.getUVBuffer());
+                glVertexAttribPointer(
+                            1,
+                            2,
+                            GL_FLOAT,
+                            GL_FALSE,
+                            0,
+                            (void*)0
+                            );
+
+
+            } else {
+                glUseProgram(programID_simple);
+
+                glUniformMatrix4fv(MVP_ID_texture, 1, GL_FALSE, &mvp[0][0]);
+                glEnableVertexAttribArray(1);
+                glBindBuffer(GL_ARRAY_BUFFER, mesh.getColourBuffer());
+                glVertexAttribPointer(
+                            1,
+                            3,
+                            GL_FLOAT,
+                            GL_FALSE,
+                            0,
+                            (void*)0
+                            );
+            }
+
+            glDrawArrays(GL_TRIANGLES, 0, mesh.getVertices().size()); // Starting from vertex 0, 3 vertices in total
+            glDisableVertexAttribArray(0);
+            glDisableVertexAttribArray(1);
+
+
+        }
+
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+
+
+    }while( glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(window) == 0);
+
+
+
+
+
+}
+
+
 
 
 void view(std::vector<glm::vec3> vertices,
@@ -288,14 +423,6 @@ void view(std::vector<glm::vec3> vertices, std::vector<glm::vec3> normals,
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUseProgram(programID);
 
-
-//        computeMatricesFromInputs(window);
-//        glm::mat4 ProjectionMatrix = getProjectionMatrix();
-//        glm::mat4 ViewMatrix = getViewMatrix();
-//        glm::mat4 mvp = ProjectionMatrix * ViewMatrix;
-//        glm::mat4 mv = ViewMatrix;
-//        glm::mat3x3 modelMatrix3(mv);
-//        glm::mat3x3 n = glm::inverseTranspose(modelMatrix3);
 
         /* **********draw the cube***** */
         //This send the transformation to the currently bound shader
