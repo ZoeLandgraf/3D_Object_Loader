@@ -22,18 +22,20 @@
 #include "loader.h"
 #include "viewer.h"
 #include "object.h"
-
+#include <boost/filesystem.hpp>
 
 
 int main(){
 
+    std::string instance_directory = "/mnt/zoe_harddrive/My_Research_data/Tests/ShapeNet_test_objects/keyboards/21f6bbe54dab206a571ee28145703271";
 
-    // Load object in assimp    
-    std::string test_object_file = "/home/zoe/2c6493d31849c15a75f1efca97bee05a/models/model_normalized.obj";
+
+    // Load object in assimp
+    std::string test_object_file = (boost::filesystem::path(instance_directory) / boost::filesystem::path("models/model_normalized.obj")).string();
 
     object::_3D_OG_Object object = object::_3D_OG_Object();
 
-    loader::_3DModelLoader loader = loader::_3DModelLoader("/home/zoe/2c6493d31849c15a75f1efca97bee05a/");
+    loader::_3DModelLoader loader = loader::_3DModelLoader(instance_directory);
     loader.load_3d_object(test_object_file);
 
     //initialize glfw

@@ -42,6 +42,7 @@ public:
     bool has_uv_coords;
     bool has_normals;
     bool has_texture;
+    bool has_dummy_colours;
 
     //TODO: set material buffer
 
@@ -54,7 +55,7 @@ private:
 
     std::vector<glm::vec3> vertices_;
     std::vector<glm::vec3> normals_;
-    std::vector<glm::vec3> uv_coords_;
+    std::vector<glm::vec2> uv_coords_;
     std::vector<glm::vec3> colours_;
     unsigned char* texture_image;
 
@@ -63,7 +64,7 @@ private:
 
     void setVertices(std::vector<glm::vec3> vertices);
     void setNormals(std::vector<glm::vec3> normals);
-    void setUVCoords(std::vector<glm::vec3> uv_coords);
+    void setUVCoords(std::vector<glm::vec2> uv_coords);
     void setColours(std::vector<glm::vec3> colours);
     void setTexture(std::string texture_file);
 

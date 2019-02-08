@@ -103,9 +103,10 @@ Mesh* _3DModelLoader::ProcessMesh(aiMesh* mesh){
     }
 
     if (mesh->HasTextureCoords(0)){
-        for (uint i = 0; i < mesh->mNumVertices; i++){
+        for (int i = 0; i < mesh->mNumVertices; i++){
+        //for (int i = (mesh->mNumVertices) - 1; i >= 0; i--){
             aiVector3t<float> uv_coords = mesh->mTextureCoords[0][i];
-            glm::vec3 next_uv_coord = glm::vec3(uv_coords.x, uv_coords.y, uv_coords.z);
+            glm::vec2 next_uv_coord = glm::vec2(uv_coords.x, uv_coords.y);
             mesh_info->UV_Coords.push_back(next_uv_coord);
             mesh_info->hasUVCoords  = true;
         }
@@ -115,11 +116,13 @@ Mesh* _3DModelLoader::ProcessMesh(aiMesh* mesh){
     }
 
     Dummy_Colours dummy_colours;
-    int random_colour_id = rand() % (dummy_colours.colour_array.size());
-    std::cout<<" random_colour for mesh "<< random_colour_id << std::endl;
+    //Generate a random colour for this mesh
+    float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    float g = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    float b = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     // add dummy_colours
     for (uint i = 0; i < mesh->mNumVertices; i++){
-        glm::vec3 random_colour = glm::vec3(dummy_colours.colour_array[random_colour_id]);
+        glm::vec3 random_colour = glm::vec3(r,g,b);
         mesh_info->DummyColors.push_back(random_colour);
         mesh_info->hasDummyColours  = true;
     }

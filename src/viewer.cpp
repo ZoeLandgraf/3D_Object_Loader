@@ -41,9 +41,9 @@ void view(GLFWwindow* window, object::_3D_OG_Object& object){
     float FoV = 45.0f;
     glm::mat4 ProjectionMatrix = glm::perspective(glm::radians(FoV), aspect_ratio, near_clipping_plane, far_clipping_plane);
     glm::mat4 View = glm::lookAt(
-                  glm::vec3(-1,-1,-1),  // camera is at 4,3,3 in world space
+                  glm::vec3(1,1,1),  // camera is at 4,3,3 in world space
                   glm::vec3(0,0,0),  // looks at the origin
-                  glm::vec3(0,-1,0)   // Head is up (set  to (0, -1, 0) to look upside down
+                  glm::vec3(0,1,0)   // Head is up (set  to (0, -1, 0) to look upside down
                   );
     glm::mat4 mvp = ProjectionMatrix * View;
 
@@ -52,15 +52,17 @@ void view(GLFWwindow* window, object::_3D_OG_Object& object){
     // Accept fragment if it closer to the camera than the former one
     glDepthFunc(GL_LESS);
 
-    std::cout<<"Got here"<<std::endl;
+    std::cout<<"About to render"<<std::endl;
 
     do {
         //This clears the buffers for colour and depth
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        //std::cout<<"In the loop " <<std::endl;
+
 
         for (object::_3D_OG_Mesh mesh : object.GetMeshes()){
 
+            //This clears the buffers for colour and depth
+            //glClear(GL_DEPTH_BUFFER_BIT);
 
 
             /********* configuring the buffers*******/
@@ -80,7 +82,6 @@ void view(GLFWwindow* window, object::_3D_OG_Object& object){
 
             if (mesh.has_uv_coords && mesh.has_texture){
 
-                //std::cout<<"using texture shader"<<std::endl;
                 glUseProgram(programID_texture);
                 glUniformMatrix4fv(MVP_ID_texture, 1, GL_FALSE, &mvp[0][0]);
                 // Bind our texture in Texture Unit 0
@@ -102,7 +103,6 @@ void view(GLFWwindow* window, object::_3D_OG_Object& object){
 
 
             } else {
-                std::cout<<"using simple shader"<<std::endl;
                 glUseProgram(programID_simple);
 
                 glUniformMatrix4fv(MVP_ID_texture, 1, GL_FALSE, &mvp[0][0]);

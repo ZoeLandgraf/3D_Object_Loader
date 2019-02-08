@@ -10,7 +10,7 @@ void _3D_OG_Mesh::setColours(std::vector<glm::vec3> colours){
     glGenBuffers(1, &colourBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, colourBuffer);
     glBufferData(GL_ARRAY_BUFFER, colours.size() * sizeof(glm::vec3), &colours[0], GL_STATIC_DRAW);
-    vertices_ = colours;
+    colours_ = colours;
 }
 
 
@@ -34,12 +34,12 @@ void _3D_OG_Mesh::setNormals(std::vector<glm::vec3> normals){
 
 }
 
-void _3D_OG_Mesh::setUVCoords(std::vector<glm::vec3> uv_coords){
+void _3D_OG_Mesh::setUVCoords(std::vector<glm::vec2> uv_coords){
 
     // Generate 1 buffer and use our variable for it
     glGenBuffers(1, &uvBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-    glBufferData(GL_ARRAY_BUFFER, uv_coords.size() * sizeof(glm::vec3), &uv_coords[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, uv_coords.size() * sizeof(glm::vec2), &uv_coords[0], GL_STATIC_DRAW);
     uv_coords_ = uv_coords;
 
 }
@@ -108,6 +108,11 @@ GLuint _3D_OG_Mesh::getUVBuffer(){
 
 _3D_OG_Mesh::_3D_OG_Mesh(loader::Mesh* mesh, loader::Material* material){
 
+    has_texture = false;
+    has_uv_coords = false;
+    has_dummy_colours = false;
+    has_normals = false;
+
     //set vertexbuffer
     assert(mesh->Vertices.size() >0);
     setVertices(mesh->Vertices);
@@ -118,18 +123,22 @@ _3D_OG_Mesh::_3D_OG_Mesh(loader::Mesh* mesh, loader::Material* material){
         has_normals = true;
     }
     //set Uv buffer
-    if(!(mesh->UV_Coords).empty()){
-            setUVCoords(mesh->UV_Coords);
+    if(!(mesh->UV_Coords).empty() && !((material->PathToTexture) == "")){
+          setUVCoords(mesh->UV_Coords);
           has_uv_coords = true;
 
-          if(material->PathToTexture == ""){
-              has_texture = false;
-          }else{
-              setTexture(material->PathToTexture);
-               has_texture = true;
-          }
+          setTexture(material->PathToTexture);
+          has_texture = true;
 
-     }
+    } else {
+        if(!(mesh->DummyColors).empty()){
+        //set colour buffer
+        setColours(mesh->DummyColors);
+        has_dummy_colours = true;
+        }
+    }
+
+    assert((has_texture && has_uv_coords) | has_dummy_colours);
 
 }
 

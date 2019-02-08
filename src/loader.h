@@ -82,7 +82,7 @@ struct Mesh
     std::string Name;
     std::vector<glm::vec3> Vertices;
     std::vector<glm::vec3> Normals;
-    std::vector<glm::vec3> UV_Coords;
+    std::vector<glm::vec2> UV_Coords;
     int MaterialIndex;
     std::vector<glm::vec3> DummyColors;
 
