@@ -21,12 +21,12 @@ void _3DModelLoader::LoadMaterials(){
     if (m_scene_->HasMaterials()){
         for (int i = 0; i < m_scene_->mNumMaterials; i++){
             materials_.push_back(ProcessMaterial(m_scene_->mMaterials[i]));
-            has_materials = true;
+            has_materials_ = true;
         }
     }
     else{
-        std::cout<<"No materials" << std::endl;
-        has_materials = false;
+        std::cout<<"No materials found" << std::endl;
+        has_materials_ = false;
     }
 }
 
@@ -67,13 +67,15 @@ Material* _3DModelLoader::ProcessMaterial(aiMaterial* material){
                }
            }
 
-           material_info->path_to_texture = base_dir.string();
-           has_textures = true;
+           material_info->PathToTexture = base_dir.string();
+           material_info->hasTexture = true;
        } else{
 
-           material_info->path_to_texture = "";
-           has_textures = false;
+           material_info->PathToTexture = "";
+           material_info->hasTexture = false;
        }
+    } else {
+        material_info->hasTexture = false;
     }
     return material_info;
 
@@ -94,10 +96,10 @@ Mesh* _3DModelLoader::ProcessMesh(aiMesh* mesh){
             glm::vec3 next_normal = glm::vec3(normal.x, normal.y, normal.z);
             mesh_info->Normals.push_back(next_normal);
         }
-        has_normals = true;
+        mesh_info->hasNormals = true;
     }else{
         std::cout<<"Mehs has no normals!"<<std::endl;
-        has_normals = false;
+        mesh_info->hasNormals = false;
     }
 
     if (mesh->HasTextureCoords(0)){
@@ -105,9 +107,11 @@ Mesh* _3DModelLoader::ProcessMesh(aiMesh* mesh){
             aiVector3t<float> uv_coords = mesh->mTextureCoords[0][i];
             glm::vec3 next_uv_coord = glm::vec3(uv_coords.x, uv_coords.y, uv_coords.z);
             mesh_info->UV_Coords.push_back(next_uv_coord);
+            mesh_info->hasUVCoords  = true;
         }
     } else {
             std::cout<<"Mehs has no uv_coords!!!"<<std::endl;
+             mesh_info->hasUVCoords  = false;
     }
 
     Dummy_Colours dummy_colours;
@@ -116,12 +120,13 @@ Mesh* _3DModelLoader::ProcessMesh(aiMesh* mesh){
     // add dummy_colours
     for (uint i = 0; i < mesh->mNumVertices; i++){
         glm::vec3 random_colour = glm::vec3(dummy_colours.colour_array[random_colour_id]);
-        mesh_info->Dummy_Colors.push_back(random_colour);
+        mesh_info->DummyColors.push_back(random_colour);
+        mesh_info->hasDummyColours  = true;
     }
 
 
     mesh_info->MaterialIndex = mesh->mMaterialIndex;
-    //TODO: Normals
+
 
     return mesh_info;
 }
@@ -155,83 +160,6 @@ void _3DModelLoader::load_3d_object(std::string test_object_file)
 }
 
 
-bool _3DModelLoader::copyVertices(std::vector<glm::vec3>& vertices){
-    for(uint m = 0; m < meshes_.size(); m++){
-
-        for(int i = 0; i < (meshes_[m])->Vertices.size(); i++){
-            vertices.push_back(meshes_[m]->Vertices[i]);           
-    }
-
-    }
-    return true;
-}
-
-bool _3DModelLoader::copyNormals(std::vector<glm::vec3>& normals){
-
-    if (!has_normals){
-        return false;
-    }
-
-    for(uint m = 0; m < meshes_.size(); m++){
-
-        for(int i = 0; i < (meshes_[m])->Normals.size(); i++){
-            normals.push_back(meshes_[m]->Normals[i]);
-        }
-
-    }
-    return true;
-}
-
-bool _3DModelLoader::copyMaterials(std::vector<OpenGL_Material>& materials){
-
-    if (!has_materials){
-        return false;
-    }
-    for(uint m = 0; m < meshes_.size(); m++){
-        uint Material_index = meshes_[m]->MaterialIndex;
-        for(uint i = 0; i < (meshes_[m])->Vertices.size(); i++){
-            materials.push_back(*ConvertToOpenGLMaterial((materials_[Material_index])));
-    }
-    }
-    return true;
-}
-
-
-bool _3DModelLoader::copyMaterials(std::vector<Material>& materials){
-
-    if (!has_materials){
-        return false;
-    }
-    for(uint m = 0; m < meshes_.size(); m++){
-        uint Material_index = meshes_[m]->MaterialIndex;
-        for(uint i = 0; i < (meshes_[m])->Vertices.size(); i++){
-            materials.push_back(*materials_[Material_index]);
-    }
-    }
-    return true;
-}
-
-
-
-bool _3DModelLoader::copyUVCoords(std::vector<glm::vec3>& uv_coords){
-    for(uint m = 0; m < meshes_.size(); m++){
-
-        for(int i = 0; i < (meshes_[m])->UV_Coords.size(); i ++){
-            uv_coords.push_back(meshes_[m]->UV_Coords[i]);
-        }
-    }
-    return true;
-}
-
-bool _3DModelLoader::copyColours(std::vector<glm::vec3>& colours){
-    for(uint m = 0; m < meshes_.size(); m++){
-
-        for(int i = 0; i < (meshes_[m])->Dummy_Colors.size(); i ++){
-            colours.push_back(meshes_[m]->Dummy_Colors[i]);
-        }
-    }
-    return true;
-}
 
 std::vector<Mesh*> _3DModelLoader::GetMeshes(){
     return meshes_;

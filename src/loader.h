@@ -66,8 +66,14 @@ struct Material
     glm::vec3 Diffuse;
     glm::vec3 Specular;
     float Shininess;
-    std::string path_to_texture;
-    std::vector<glm::vec3> Dummy_Colors;
+    std::string PathToTexture;
+    bool hasTexture;
+
+    Material() {hasTexture = false;
+               Shininess = 0;
+               Name = "";
+               PathToTexture = "";
+               }
 
 };
 
@@ -78,8 +84,18 @@ struct Mesh
     std::vector<glm::vec3> Normals;
     std::vector<glm::vec3> UV_Coords;
     int MaterialIndex;
+    std::vector<glm::vec3> DummyColors;
 
-    std::vector<glm::vec3> Dummy_Colors;
+    bool hasNormals;
+    bool hasUVCoords;
+    bool hasDummyColours;
+
+    Mesh(){Name = "";
+          MaterialIndex = -1;
+          hasNormals = false;
+          hasUVCoords = false;
+          hasDummyColours = false;
+          }
 };
 
 
@@ -88,16 +104,7 @@ class _3DModelLoader{
  public:
     _3DModelLoader(std::string path_to_model):path_to_model_(path_to_model){};
     void load_3d_object(std::string test_object_file);
-    bool copyUVCoords(std::vector<glm::vec3>& vertices);
-    bool copyVertices(std::vector<glm::vec3>& vertices);
-    bool copyNormals(std::vector<glm::vec3>& normals);
-    bool copyMaterials(std::vector<OpenGL_Material>& materials);
-    bool copyMaterials(std::vector<Material>& materials);
-    bool copyColours(std::vector<glm::vec3>& colours);
 
-    bool Has_Textures();
-    bool Has_Materials();
-    bool Has_Normals();
 
     std::vector<Mesh*> GetMeshes();
     std::vector<Material*> GetMaterials();
@@ -114,9 +121,8 @@ class _3DModelLoader{
 
     std::vector<Mesh*> meshes_;
     std::vector<Material*> materials_;
-    bool has_normals;
-    bool has_materials;
-    bool has_textures;
+    bool has_meshes_;
+    bool has_materials_;
 
     std::string path_to_model_;
 

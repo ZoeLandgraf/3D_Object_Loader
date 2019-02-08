@@ -29,7 +29,7 @@ int main(){
 
 
     // Load object in assimp    
-    std::string test_object_file = "/home/zoe/7852a457e59fd546d26c2593d1870bdb/models/model_normalized.obj";
+    std::string test_object_file = "/home/zoe/2c6493d31849c15a75f1efca97bee05a/models/model_normalized.obj";
 
     object::_3D_OG_Object object = object::_3D_OG_Object();
 

@@ -122,10 +122,10 @@ _3D_OG_Mesh::_3D_OG_Mesh(loader::Mesh* mesh, loader::Material* material){
             setUVCoords(mesh->UV_Coords);
           has_uv_coords = true;
 
-          if(material->path_to_texture == ""){
+          if(material->PathToTexture == ""){
               has_texture = false;
           }else{
-              setTexture(material->path_to_texture);
+              setTexture(material->PathToTexture);
                has_texture = true;
           }
 
